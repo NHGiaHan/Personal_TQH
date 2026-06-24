@@ -28,10 +28,9 @@ def load_and_prepare_data():
     df_expert = pd.read_csv("expert_rated_technological_capability.csv")
     df_task = pd.read_csv("task_statement_with_metadata.csv")
     
-    # Lọc chuyên ngành thuộc khối Computer Science & IT
     cs_occs = [
-        'Computer Network Support Specialists',
-        'Computer Systems Engineers/Architects',
+        'Computer Network Support Specialists', 'Information Technology Project Managers',
+        'Computer Systems Engineers/Architects', 'Computer and Information Systems Managers',
         'Computer Programmers', 'Computer User Support Specialists',
         'Software Quality Assurance Analysts and Testers', 'Database Administrators',
         'Information Security Analysts', 'Web Developers', 'Computer Systems Analysts'
@@ -50,16 +49,13 @@ cs_desires, cs_metadata, cs_expert, cs_task = load_and_prepare_data()
 tab1, tab2, tab3 = st.tabs(["📊 Tổng Quan Hiện Trạng", "🔍 Phân Tích Chuyên Sâu (Deep Dive)", "💡 Khuyến Nghị Giải Pháp"])
 
 # ==========================================
-# TAB 1: HIỆN TRẠNG (MỤC 1) - CÓ BỘ LỌC TƯƠNG TÁC
+# TAB 1: HIỆN TRẠNG (MỤC 1)
 # ==========================================
 with tab1:
     st.markdown("### Mục 1: Tần suất ứng dụng LLM theo phân loại tác vụ kỹ thuật")
-    
-    # --- BỘ LỌC PHÂN KHÚC (DATA SEGMENTATION) ---
     occ_options = ["🌟 Tất cả các vị trí (All CS Occupations)"] + list(cs_metadata['Occupation (O*NET-SOC Title)'].unique())
     selected_occ = st.selectbox("🎯 Bộ lọc phân khúc chức danh:", occ_options)
     
-    # Xử lý logic lọc dữ liệu
     if selected_occ == "🌟 Tất cả các vị trí (All CS Occupations)":
         filtered_df = cs_metadata
         title_chart = "Tỷ lệ nhân sự kỹ thuật ứng dụng AI thường xuyên (Tổng quan ngành)"
@@ -67,10 +63,8 @@ with tab1:
         filtered_df = cs_metadata[cs_metadata['Occupation (O*NET-SOC Title)'] == selected_occ]
         title_chart = f"Tỷ lệ ứng dụng AI thường xuyên của: {selected_occ}"
     
-    # Hiển thị cỡ mẫu để bảo vệ tính thống kê
     st.caption(f"**📌 Cỡ mẫu phân tích (Sample Size):** Dữ liệu được tính toán dựa trên **{len(filtered_df)}** nhân sự thuộc phân khúc này.")
     
-    # Tính toán % dựa trên tập dữ liệu đã lọc (filtered_df)
     usage_cols = [c for c in filtered_df.columns if 'LLM Usage' in c]
     usage_data = []
     for col in usage_cols:
@@ -86,7 +80,7 @@ with tab1:
     fig1.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
     st.plotly_chart(fig1, use_container_width=True)
     
-    st.info("**👉 Data Storytelling:** Việc phân tích theo từng phân khúc chỉ ra rằng, dù ở bất kỳ vị trí chuyên môn nào, AI vẫn đang bị 'mắc kẹt' ở vai trò thợ gõ code/truy xuất thông tin. Nhóm kĩ sư chưa sẵn sàng tin tưởng giao phó các quyết định kiến trúc cốt lõi (System Design) cho mô hình AI đơn lẻ.")
+    st.info("**👉 Data Storytelling:** Việc phân tích theo từng phân khúc chỉ ra rằng AI vẫn đang bị 'mắc kẹt' ở vai trò thợ gõ code/truy xuất thông tin. Nhóm kĩ sư chưa sẵn sàng tin tưởng giao phó các quyết định kiến trúc cốt lõi (System Design).")
 
 # ==========================================
 # TAB 2: ĐÀO SÂU MÂU THUẪN (MỤC 2, 3, 4)
@@ -94,7 +88,7 @@ with tab1:
 with tab2:
     st.markdown("### Phân tích đa chiều: Giải mã sự đứt gãy niềm tin công nghệ")
     
-    # --- MỤC 2: Nghịch lý kiểm soát ---
+    # --- MỤC 2 ---
     st.subheader("Mục 2: Đối chiếu Năng lực tự động hóa thực tế với Nhu cầu kiểm soát (Human Agency)")
     col1, col2 = st.columns(2)
     with col1:
@@ -102,7 +96,7 @@ with tab2:
         avg_des = cs_desires['Automation Desire Rating'].mean()
         avg_agency = cs_desires['Human Agency Scale Rating'].mean()
         df_gap = pd.DataFrame({
-            'Chỉ số toán học': ['Năng lực tự động (Expert Rated)', 'Nguyện vọng tự động', 'Nhu cầu kiểm duyệt hệ thống'],
+            'Chỉ số toán học': ['Năng lực tự động', 'Nguyện vọng tự động', 'Nhu cầu kiểm duyệt'],
             'Điểm trung bình (1-5)': [avg_cap, avg_des, avg_agency]
         })
         fig2 = px.bar(df_gap, x='Chỉ số toán học', y='Điểm trung bình (1-5)', text_auto='.2f', color='Chỉ số toán học', 
@@ -120,22 +114,61 @@ with tab2:
                       color='Tần suất phản hồi', color_continuous_scale='Purp')
         fig3.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig3, use_container_width=True)
-    st.success("**👉 Insight Mục 2:** Mặc dù năng lực kỹ thuật của AI được chuyên gia chấm rất cao (3.48), rào cản ứng dụng lớn nhất trong Khoa học máy tính là yêu cầu **Kiểm soát chất lượng loại bỏ Bug (Quality Oversight)** và sự thiếu hụt **Kiến thức miền đặc thù (Domain Knowledge)**.")
+    st.success("**👉 Insight Mục 2:** Rào cản lớn nhất là yêu cầu **Kiểm soát chất lượng loại bỏ Bug (Quality Oversight)** và sự thiếu hụt **Kiến thức miền đặc thù (Domain Knowledge)**.")
 
     st.divider()
 
-    # --- MỤC 3: Nghịch lý chuyên gia ---
+    # --- MỤC 3: NGHỊCH LÝ CHUYÊN GIA & KIỂM CHỨNG GIẢ THUYẾT ---
     st.subheader("Mục 3: Nghịch lý Chuyên gia (Expertise Paradox) trong Kỹ nghệ Phần mềm")
+    
+    # 3.1 Biểu đồ Hộp (Coding)
     mapping = {'Never': 1, 'Monthly': 2, 'Weekly': 3, 'Daily': 4}
     cs_metadata['Mức độ tin dùng AI Code'] = cs_metadata['LLM Usage by Type - Coding'].map(mapping)
     exp_order = ['1-2 year', '3-5 years', '6-10 years', '11-15 years', '16-20 years', '21-30 years']
     
     fig4 = px.box(cs_metadata, x='Experience', y='Mức độ tin dùng AI Code', 
                   category_orders={'Experience': exp_order}, color='Experience',
-                  title="Sự phân vị: Thâm niên kinh nghiệm thực tế vs Tần suất sử dụng AI sinh mã nguồn")
+                  title="3.1 Sự phân vị: Thâm niên kinh nghiệm thực tế vs Tần suất sử dụng AI sinh mã nguồn")
     fig4.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', showlegend=False)
     st.plotly_chart(fig4, use_container_width=True)
-    st.warning("**👉 Insight Mục 3:** Biểu đồ hộp thể hiện độ phân tán lớn ở nhóm Senior (6-10 năm+). Các kỹ sư lão luyện cực kỳ thận trọng với AI vì họ thấu hiểu rủi ro hệ thống của các lỗi logic ẩn sâu, trái ngược với sự phụ thuộc của nhóm Novice.")
+    
+    # =========================================================
+    # PHẦN CODE MỚI THÊM: KIỂM CHỨNG TẤT CẢ TÁC VỤ (DROP-OFF RATE)
+    # =========================================================
+    st.markdown("#### 3.2 Kiểm chứng diện rộng: Độ sụt giảm niềm tin trên toàn bộ hệ thống tác vụ")
+    
+    # Phân loại 2 nhóm: Lính mới (< 5 năm) và Chuyên gia (> 6 năm)
+    novice_mask = cs_metadata['Experience'].isin(['Less than 1 year', '1-2 year', '3-5 years'])
+    senior_mask = cs_metadata['Experience'].isin(['6-10 years', '11-15 years', '16-20 years', '21-30 years', 'More than 10 years'])
+    
+    usage_cols_all = [c for c in cs_metadata.columns if 'LLM Usage' in c]
+    dropoff_data = []
+    
+    for col in usage_cols_all:
+        task_name = col.split(' - ')[1]
+        
+        # Tính % dùng thường xuyên cho Nhóm Lính mới
+        novice_freq = cs_metadata[novice_mask][col].value_counts(normalize=True) * 100
+        novice_pct = novice_freq.get('Daily', 0) + novice_freq.get('Weekly', 0)
+        
+        # Tính % dùng thường xuyên cho Nhóm Chuyên gia
+        senior_freq = cs_metadata[senior_mask][col].value_counts(normalize=True) * 100
+        senior_pct = senior_freq.get('Daily', 0) + senior_freq.get('Weekly', 0)
+        
+        dropoff_data.append({'Tác vụ': task_name, 'Phân khúc': 'Lính mới (Novice < 5 năm)', 'Tỷ lệ dùng (%)': novice_pct})
+        dropoff_data.append({'Tác vụ': task_name, 'Phân khúc': 'Chuyên gia (Senior > 6 năm)', 'Tỷ lệ dùng (%)': senior_pct})
+        
+    df_dropoff = pd.DataFrame(dropoff_data)
+    # Sắp xếp tác vụ theo thứ tự giảm dần để tạo hiệu ứng dốc
+    df_dropoff_sorted = df_dropoff.sort_values(by='Tỷ lệ dùng (%)', ascending=False)
+    
+    fig_drop = px.bar(df_dropoff_sorted, x='Tác vụ', y='Tỷ lệ dùng (%)', color='Phân khúc', barmode='group',
+                      color_discrete_sequence=['#FF9AA2', '#B5EAD7'],
+                      title="Đối chiếu Tỷ lệ sử dụng AI: Nhóm Novice vs Nhóm Senior")
+    fig_drop.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+    st.plotly_chart(fig_drop, use_container_width=True)
+    
+    st.warning("**👉 Bằng chứng định lượng (Data Storytelling):** Biểu đồ cột nhóm này đã trả lời triệt để nghi vấn về các tác vụ khác. Ở các tác vụ đơn giản (bên trái), hai cột đứng khá sát nhau. Nhưng khi dịch chuyển sang các tác vụ lõi (System Design, Decision), khoảng cách (Gap) giữa hai cột bị nới rộng thảm hại. Điều này chứng minh định lý: **Độ phức tạp và Rủi ro của quy trình nghiệp vụ tỷ lệ thuận với sự tẩy chay AI của nhóm Chuyên gia!**")
 
     st.divider()
 
@@ -150,43 +183,17 @@ with tab2:
                       color='Trọng số xuất hiện', color_continuous_scale='Sunset')
     fig5.update_layout(margin=dict(t=10, l=10, r=10, b=10), paper_bgcolor='rgba(0,0,0,0)')
     st.plotly_chart(fig5, use_container_width=True)
-    st.error("**👉 Insight Mục 4:** Cấu trúc phân cấp Treemap chỉ ra Khoa học máy tính là một tập hợp đa kỹ năng đan xen từ Phân tích dữ liệu hệ thống đến Ra quyết định logic. Một mô hình tác tử đơn lẻ không thể giải quyết bài toán đa biến này.")
+    st.error("**👉 Insight Mục 4:** Khoa học máy tính là tập hợp đa kỹ năng phức tạp. Một mô hình tác tử đơn lẻ không thể giải quyết bài toán đa biến này.")
 
 # ==========================================
 # TAB 3: KHUYẾN NGHỊ (MỤC 5)
 # ==========================================
 with tab3:
-    st.markdown("### Mục 5: Khuyến nghị Mô hình Hệ đa tác tử tự động hóa Kỹ nghệ phần mềm (Multi-Agent Software Engineering - MASE)")
-    st.write("Tổng hợp từ chuỗi 4 bằng chứng định lượng phía trước, mô hình đề xuất cấu trúc giải pháp phân tầng các tác tử thông minh chuyên biệt (Specialized Agents) hoạt động theo kiến trúc luồng dữ liệu khép kín:")
-    
-    # Bảng cấu trúc định hướng Khoa học Máy tính
+    st.markdown("### Mục 5: Khuyến nghị Mô hình Hệ đa tác tử tự động hóa (Multi-Agent System)")
     df_rec = pd.DataFrame({
-        'Kiến trúc Tác tử (Specialized Agent)': [
-            '1. System Architecture & Knowledge Agent', 
-            '2. Code Generation & Refactoring Agent', 
-            '3. Automated Verification & Testing Agent'
-        ],
-        'Thuật toán & Cơ chế vận hành chính': [
-            'Sử dụng Vector Database và RAG kết nối mã nguồn hệ thống để xử lý bài toán thiếu Domain Knowledge.',
-            'Ứng dụng LLM finetuned chuyên biệt cho sinh mã, tối ưu hóa cấu trúc giải thuật và độ phức tạp tính toán.',
-            'Áp dụng cơ chế Static Code Analysis (Phân tích mã tĩnh) và Formal Verification để tự động sinh Unit Test.'
-        ],
-        'Khắc phục điểm nghẽn thực tế (Từ đối chiếu dữ liệu)': [
-            'Giải quyết triệt để rào cản thiếu hụt Kiến thức miền (Mục 2 & Mục 4).',
-            'Giải phóng sức lao động ở các tác vụ thực thi lặp đi lặp lại có tần suất cao (Mục 1).',
-            'Giải quyết khủng hoảng niềm tin về rủi ro Bugs và Quality Oversight của nhóm Chuyên gia (Mục 2 & Mục 3).'
-        ],
-        'Giao thức tương tác với Con người': [
-            'Kỹ sư hệ thống kiểm duyệt bản thiết kế logic (System Blueprints).',
-            'Lập trình viên rà soát cấu trúc mã nguồn.',
-            'Senior Engineers / Tech Leads đóng vai trò kiểm duyệt tối cao (Human-in-the-loop) để nhấn nút Triển khai (Deploy).'
-        ]
+        'Kiến trúc Tác tử (Specialized Agent)': ['1. System Architecture & Knowledge', '2. Code Generation & Refactoring', '3. Automated Verification & Testing'],
+        'Cơ chế vận hành': ['Dùng Vector DB/RAG kết nối mã nguồn', 'LLM finetuned sinh và tối ưu mã', 'Phân tích mã tĩnh và sinh Unit Test'],
+        'Khắc phục điểm nghẽn': ['Giải quyết rào cản Kiến thức miền', 'Giải phóng lao động tác vụ lặp', 'Giải quyết rủi ro Bugs/Quality Oversight']
     })
-    
     st.table(df_rec)
-    
-    st.success("""
-    **🚀 Kết luận chiến lược (Actionable Recommendation):**
-    
-    Mô hình ứng dụng AI Agent tối ưu cho ngành Khoa học máy tính không phải là thay thế con người, mà là chuyển dịch vai trò của Kỹ sư máy tính từ **"Người trực tiếp sinh mã thủ công" (Manual Coder)** thành **"Người kiểm duyệt kiến trúc và logic thuật toán" (System Auditor)**. Sự kết hợp giữa chuỗi tác tử đa tầng (Multi-Agent) và cổng duyệt của con người (Human-in-the-loop) là lời giải duy nhất cho bài toán quản trị chất lượng phần mềm dựa trên dữ liệu thực tế!
-    """)
+    st.success("**🚀 Kết luận:** Sự kết hợp giữa chuỗi tác tử đa tầng (Multi-Agent) và cổng duyệt của con người (Human-in-the-loop) là lời giải duy nhất cho bài toán quản trị chất lượng phần mềm!")
