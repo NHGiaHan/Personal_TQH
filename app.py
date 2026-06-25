@@ -9,7 +9,7 @@ st.set_page_config(page_title="Phân tích AI Agent - CS", page_icon="🌸", lay
 #chèn CSS thuần vào trang để đổi màu sắc
 st.markdown("""
 <style>
-    .stApp { background-color: #FFF6F7; }  
+    .stApp { background-color: #FFF6F7; }
     h1, h2, h3 { color: #FF9AA2; font-family: 'Arial', sans-serif; }
     .stTabs [data-baseweb="tab-list"] { gap: 24px; }
     .stTabs [data-baseweb="tab"] { height: 50px; white-space: pre-wrap; background-color: #FFDAC1; border-radius: 10px 10px 0px 0px; padding: 10px 20px; font-weight: bold; color: #555; }
@@ -18,11 +18,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-#in 
+#in
 st.title("🌸 Báo cáo Phân Tích & Đề Xuất Ứng Dụng AI Agent")
 st.subheader("Trọng tâm: Ngành Khoa học Máy tính (Computer Science)")
 st.markdown("**Github Repository:** [NHGiaHan/Personal_TQH](https://github.com/NHGiaHan/Personal_TQH) | **Phương pháp:** Hệ thống hóa dữ liệu 5 bước")  #tạo hyperlink code nguồn (lưu ở github)
-st.divider()   #đường kẻ ngang phân cách phần  trên và dưới 
+st.divider()   #đường kẻ ngang phân cách phần  trên và dưới
 
 # --- 2. TIỀN XỬ LÝ 4 TẬP DỮ LIỆU ---
 #hàm @st.cache_data: hàm này tốn thời gian (đọc file CSV), nên lần đầu chạy xong thì lưu kq lại, lần sau tự lấy kq khôg cần đọc lại
@@ -80,7 +80,7 @@ with tab1:
         usage_data.append({'Tác vụ': task_name, 'Tỷ lệ dùng thường xuyên (%)': regular_use})     #Sau vòng lặp, usage_data sẽ là 1 list các dictionary, mỗi dictionary tương ứng 1 tác vụ, append là thêm 1 phần tử.
 
     df_usage = pd.DataFrame(usage_data).sort_values('Tỷ lệ dùng thường xuyên (%)', ascending=True)   #chuyển list các dictionary thành 1 bảng (DataFrame) có 2 cột
-    
+
 #Vẽ biểu đồ cột
     fig1 = px.bar(df_usage, x='Tỷ lệ dùng thường xuyên (%)', y='Tác vụ', orientation='h',   #orientation: cột ngang
                   color='Tỷ lệ dùng thường xuyên (%)', color_continuous_scale='Mint',
@@ -99,7 +99,7 @@ with tab2:
 
     # --- MỤC 2 ---
     st.subheader("Mục 2: Đối chiếu Năng lực tự động hóa thực tế với Nhu cầu kiểm soát (Human Agency)")
-    col1, col2 = st.columns(2)   #chia khu vực hiển thị thành 2 cột 
+    col1, col2 = st.columns(2)   #chia khu vực hiển thị thành 2 cột
 
     #tính giá trị trung bình cả cột
     with col1:
@@ -134,7 +134,7 @@ with tab2:
         st.plotly_chart(fig3, use_container_width=True)
     st.success("**👉 Insight Mục 2:** Rào cản lớn nhất là yêu cầu **Kiểm soát chất lượng loại bỏ Bug (Quality Oversight)** và sự thiếu hụt **Kiến thức miền đặc thù (Domain Knowledge)**.")
 
-    st.divider()   #vẽ đường kẻ ngang 
+    st.divider()   #vẽ đường kẻ ngang
 
     # --- MỤC 3: NGHỊCH LÝ CHUYÊN GIA & KIỂM CHỨNG GIẢ THUYẾT ĐỐI VỚI TYPE CODING ---
     st.subheader("Mục 3: Nghịch lý Chuyên gia (Expertise Paradox) trong Kỹ nghệ Phần mềm")
@@ -185,7 +185,7 @@ with tab2:
     #vẽ bđồ
     #barmode='group': với mỗi giá trị trên trục x (mỗi tác vụ), vẽ nhiều cột cạnh nhau (1 cột/nhóm), thay vì chồng lên nhau.
     #color='Phân khúc': tô màu cột theo nhóm (Lính mới/Chuyên gia) — Plotly tự nhận biết và tách thành 2 series màu khác nhau.
-    fig_drop = px.bar(df_dropoff_sorted, x='Tác vụ', y='Tỷ lệ dùng (%)', color='Phân khúc', barmode='group',   
+    fig_drop = px.bar(df_dropoff_sorted, x='Tác vụ', y='Tỷ lệ dùng (%)', color='Phân khúc', barmode='group',
                       color_discrete_sequence=['#FF9AA2', '#B5EAD7'],
                       title="Đối chiếu Tỷ lệ sử dụng AI: Nhóm Novice vs Nhóm Senior")
     fig_drop.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
@@ -198,7 +198,7 @@ with tab2:
 
     # --- MỤC 4: Đào sâu kỹ năng thực tế --- BIỂU ĐỒ TREEMAP
     st.subheader("Mục 4: Bản đồ phân cấp độ phức tạp kỹ năng (Task Complexity Map) trong CS")
-     
+
       #astype: ép cột về dạng chữ, dùng regex xóa kí tự \'...
     cs_task['Skill_Clean'] = cs_task['Skill (O*NET Work Activity)'].astype(str).str.replace(r"[\[\]\']", "", regex=True)
     skill_counts = cs_task['Skill_Clean'].value_counts().reset_index()       #trả về số đếm thô mỗi kỹ năng xuất hiện bao nhiêu lần.
